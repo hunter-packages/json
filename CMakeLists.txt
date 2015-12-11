@@ -4,9 +4,13 @@ project(json
   LANGUAGES CXX
   VERSION "1.0.0")
 
-add_executable(json_unit
-    src/json.hpp test/catch.hpp test/unit.cpp
-)
+option(JSON_BUILD_TESTS "Build tests" ON)
+
+if(JSON_BUILD_TESTS)
+  add_executable(json_unit
+      src/json.hpp test/catch.hpp test/unit.cpp
+  )
+endif()
 
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
