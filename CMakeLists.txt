@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0.0)
 
-project(json
+project(nlohmann-json
   LANGUAGES CXX
   VERSION "1.0.0")
 
@@ -32,23 +32,50 @@ include_directories(
     src test
 )
 
-install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/src/ DESTINATION include/nlohmann
-        FILES_MATCHING PATTERN "*.[ih]pp")
+add_library(nlohmann-json INTERFACE)
+
+### Install (https://github.com/forexample/package-example) ###
+set(generated_dir "${CMAKE_CURRENT_BINARY_DIR}/generated")
+
+set(config_install_dir "lib/cmake/${PROJECT_NAME}")
+set(include_install_dir "include")
+
+set(version_config "${generated_dir}/${PROJECT_NAME}ConfigVersion.cmake")
+set(project_config "${generated_dir}/${PROJECT_NAME}Config.cmake")
+set(targets_export_name "${PROJECT_NAME}Targets")
+set(namespace "${PROJECT_NAME}::")
 
 include(CMakePackageConfigHelpers)
-set(INCLUDE_INSTALL_DIR include/)
-set(DEFINITIONS "${CMAKE_CXX_FLAGS}")
-configure_package_config_file(
-  ${CMAKE_CURRENT_LIST_DIR}/cmake/modules/nlohmann-json-config.cmake.in
-  ${CMAKE_CURRENT_BINARY_DIR}/nlohmann-json-config.cmake
-  INSTALL_DESTINATION lib/cmake/nlohmann-json-${json_VERSION}
-  PATH_VARS INCLUDE_INSTALL_DIR)
-
 write_basic_package_version_file(
-    ${CMAKE_CURRENT_BINARY_DIR}/nlohmann-json-config-version.cmake
-    COMPATIBILITY AnyNewerVersion)
+    "${version_config}" COMPATIBILITY AnyNewerVersion
+)
 
-install(FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/nlohmann-json-config.cmake
-    ${CMAKE_CURRENT_BINARY_DIR}/nlohmann-json-config-version.cmake
-    DESTINATION lib/cmake/nlohmann-json-${json_VERSION})
+# Note: use 'targets_export_name'
+configure_package_config_file(
+    "cmake/Config.cmake.in"
+    "${project_config}"
+    INSTALL_DESTINATION "${config_install_dir}"
+)
+
+install(
+    TARGETS nlohmann-json
+    EXPORT "${targets_export_name}"
+    INCLUDES DESTINATION "${include_install_dir}"
+)
+
+install(
+    DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/src/
+    DESTINATION include/nlohmann
+    FILES_MATCHING PATTERN "*.[ih]pp"
+)
+
+install(
+    FILES "${project_config}" "${version_config}"
+    DESTINATION "${config_install_dir}"
+)
+
+install(
+    EXPORT "${targets_export_name}"
+    NAMESPACE "${namespace}"
+    DESTINATION "${config_install_dir}"
+)
