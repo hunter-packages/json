@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0.0)
 
 project(json
-  LANGUAGES CXX 
+  LANGUAGES CXX
   VERSION "1.0.0")
 
 add_executable(json_unit
